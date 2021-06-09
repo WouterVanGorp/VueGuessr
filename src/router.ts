@@ -1,12 +1,12 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { Home, Login } from "./views";
-import { store } from './store'
+import { Home, Login } from './views';
+import { store } from './store/store'
 
 const routes: RouteRecordRaw[] = [
-  { path: "/login", name: "login", component: Login },
-  { path: "/home", name: "home", component: Home },
-  { path: "/", redirect: "/home" },
+  { path: '/login', name: 'login', component: Login },
+  { path: '/home', name: 'home', component: Home },
+  { path: '/', redirect: '/home' },
 ];
 
 export const router = createRouter({
@@ -16,6 +16,6 @@ export const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const username = store.getters.username;
-  if (to.name !== "login" && !username) next({ name: "login" });
+  if (to.name !== 'login' && !username) next({ name: 'login' });
   else next();
 });

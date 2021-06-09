@@ -6,9 +6,11 @@
     align="middle"
   >
     <el-card shadow="always">
-      <el-input placeholder="Username" v-model="username" />
+      <div>
+        <el-input placeholder="Username" class="mb-s" v-model="username" />
 
-      <el-button type="success" @click="login()">Login</el-button>
+        <el-button type="success" @click="login()">Login</el-button>
+      </div>
     </el-card>
   </el-row>
 </template>
@@ -20,15 +22,25 @@ import { mapMutations } from 'vuex';
 export default defineComponent({
   name: 'Login',
   data: () => ({
-    username: '',
+    username: 'test',
   }),
   methods: {
     ...mapMutations(['setUsername']),
     login() {
       if (this.username.length < 3) return;
-      this.$store.commit('setUsername', { username: this.username });
+      this.setUsername({ username: this.username });
       this.$router.push({ name: 'home' });
     },
   },
 });
 </script>
+
+<style lang="scss">
+.full-height {
+  height: 100%;
+}
+
+.mb-s {
+  margin-bottom: 0.5rem;
+}
+</style>
