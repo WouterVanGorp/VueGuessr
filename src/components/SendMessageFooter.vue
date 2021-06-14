@@ -1,6 +1,5 @@
 <template>
   <el-input
-    id="test"
     @keyup.enter="send()"
     placeholder="Type here your message..."
     v-model="message"

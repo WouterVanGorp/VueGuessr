@@ -7,9 +7,29 @@
   >
     <el-card shadow="always">
       <div>
-        <el-input placeholder="Username" class="mb-s" v-model="username" />
+        <el-input
+          @keyup.enter="login()"
+          placeholder="Enter username"
+          class="mb-s"
+          v-model="username"
+        />
 
-        <el-button type="success" @click="login()">Login</el-button>
+        <el-input
+          @keyup.enter="join()"
+          placeholder="Enter connection id"
+          class="mb-s"
+          v-model="connectionId"
+        />
+
+        <el-button
+          type="success"
+          :disabled="!connectionId.length"
+          @click="join()"
+        >
+          Join
+        </el-button>
+
+        <el-button type="primary" @click="host()">Host</el-button>
       </div>
     </el-card>
   </el-row>
@@ -17,20 +37,33 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default defineComponent({
   name: 'Login',
   data: () => ({
     username: 'test',
+    connectionId: '',
   }),
   methods: {
-    ...mapMutations(['setUsername']),
-    login() {
-      if (this.username.length < 3) return;
-      this.setUsername({ username: this.username });
+    ...mapActions(['joinGame', 'hostGame']),
+
+    join() {
+      if (!this.usernameAllowed(this.username)) return;
+      this.joinGame({
+        username: this.username,
+        connectionId: this.connectionId,
+      });
       this.$router.push({ name: 'home' });
     },
+
+    host() {
+      if (!this.usernameAllowed(this.username)) return;
+      this.hostGame(this.username);
+      this.$router.push({ name: 'home' });
+    },
+
+    usernameAllowed: (username: string): boolean => username.length > 3,
   },
 });
 </script>

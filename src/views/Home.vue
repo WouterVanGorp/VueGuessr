@@ -1,6 +1,6 @@
 <template>
   <el-container class="full-height">
-    <el-header> Welcome - {{ username }} </el-header>
+    <el-header> Host Id: {{ peerId }} </el-header>
 
     <el-main>
       <ul>
@@ -27,9 +27,12 @@ export default defineComponent({
   components: {
     SendMessageFooter,
   },
-  data: () => ({}),
+  data: () => ({
+    connectionId: '',
+    connection: '',
+  }),
   computed: {
-    ...mapGetters(['username', 'messages']),
+    ...mapGetters(['username', 'messages', 'peerId']),
   },
   methods: {
     ...mapActions(['sendMessage']),

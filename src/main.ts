@@ -7,7 +7,7 @@ import 'element-plus/lib/theme-chalk/index.css';
 Vue.use(ElementPlus);
 
 
-import { store } from './store/store';
+import { store } from './store/app.store';
 Vue.use(store);
 
 

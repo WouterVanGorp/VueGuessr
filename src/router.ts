@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { Home, Login } from './views';
-import { store } from './store/store'
+import { store } from './store/app.store';
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: Login },
