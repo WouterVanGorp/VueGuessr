@@ -11,6 +11,7 @@ export const store = createStore({
     username: '',
     peerId: '',
     messages: [],
+    peerIds: []
   }),
 
   getters: {
@@ -28,8 +29,7 @@ export const store = createStore({
   actions: {
     hostGame({ commit, dispatch }, username: { username: string }) {
       commit('setUsername', username);
-      dispatch('setupPeer');
-      dispatch('listenForPeers');
+      dispatch('setupPeer', { isHost: true });
     },
 
     joinGame(
@@ -37,15 +37,16 @@ export const store = createStore({
       { username, connectionId }: { username: string; connectionId: string }
     ) {
       commit('setUsername', username);
-      dispatch('setupPeer');
-      dispatch('connectToPeer', connectionId);
+      dispatch('setupPeer', { isHost: false, connectionId });
     },
 
-    setupPeer({ commit, state }) {
+    setupPeer({ commit, dispatch, state }, { isHost, connectionId }) {
       peer = new Peer(state.username + '-' + new Date().getTime());
 
       peer.on('open', (peerId) => {
         commit('setPeerId', peerId);
+        if (isHost) dispatch('listenForPeers');
+        else dispatch('connectToPeer', connectionId);
       });
 
       peer.on('close', (data) => {
@@ -77,11 +78,11 @@ export const store = createStore({
       });
 
       connection.on('close', (data) => {
-        debugger
+        debugger;
       });
 
       connection.on('error', (data) => {
-        debugger
+        debugger;
       });
     },
 
