@@ -4,14 +4,17 @@ import { createLogger, createStore } from 'vuex';
 import { GlobalState } from '../models';
 
 let peer: Peer;
-let connection: Peer.DataConnection;
+let connections: { peerId: string; connection: Peer.DataConnection }[] = [];
+let getConnection = (peerId: string) =>
+  connections.find((c) => c.peerId === peerId)?.connection;
 
 export const store = createStore({
   state: (): GlobalState => ({
     username: '',
-    peerId: '',
     messages: [],
-    peerIds: []
+    isHost: false,
+    peerId: '',
+    peerIds: [],
   }),
 
   getters: {
@@ -22,14 +25,16 @@ export const store = createStore({
 
   mutations: {
     setUsername: (state, username: string) => (state.username = username),
+    setHost: (state) => (state.isHost = true),
     setPeerId: (state, peerId: string) => (state.peerId = peerId),
     addMessage: (state, message) => state.messages.push(message),
   },
 
   actions: {
     hostGame({ commit, dispatch }, username: { username: string }) {
+      commit('setHost');
       commit('setUsername', username);
-      dispatch('setupPeer', { isHost: true });
+      dispatch('setupPeer');
     },
 
     joinGame(
@@ -37,16 +42,16 @@ export const store = createStore({
       { username, connectionId }: { username: string; connectionId: string }
     ) {
       commit('setUsername', username);
-      dispatch('setupPeer', { isHost: false, connectionId });
+      dispatch('setupPeer', connectionId);
     },
 
-    setupPeer({ commit, dispatch, state }, { isHost, connectionId }) {
+    setupPeer({ commit, dispatch, state }, connectionId: string) {
       peer = new Peer(state.username + '-' + new Date().getTime());
 
       peer.on('open', (peerId) => {
         commit('setPeerId', peerId);
-        if (isHost) dispatch('listenForPeers');
-        else dispatch('connectToPeer', connectionId);
+        dispatch('listenForPeers');
+        if (!state.isHost) dispatch('connectToPeer', connectionId);
       });
 
       peer.on('close', (data) => {
@@ -60,25 +65,53 @@ export const store = createStore({
       });
     },
 
-    listenForPeers({ dispatch }) {
-      peer.on('connection', (conn) => {
-        connection = conn;
-        dispatch('listenToConnection');
+    listenForPeers({ dispatch, state }) {
+      peer.on('connection', (connection) => {
+        connections.push({ peerId: connection.peer, connection });
+        dispatch('listenToConnection', connection.peer);
       });
     },
 
-    connectToPeer({ dispatch }, connectionId: string) {
-      connection = peer.connect(connectionId);
-      dispatch('listenToConnection');
+    sendPeersToClient({ state }, peerId) {
+      const connection = getConnection(peerId);
+      if (!connection) return;
+
+      const peers = connections
+        .map((c) => c.peerId)
+        .filter((c) => c !== state.peerId && c !== connection.peer);
+
+      if (!peers.length) return;
+      connection.send({
+        type: 'peers',
+        peers,
+      });
     },
 
-    listenToConnection({ commit }) {
+    connectToPeer({ dispatch }, peerId: string) {
+      const connection = peer.connect(peerId);
+      connections.push({ peerId, connection });
+      dispatch('listenToConnection', peerId);
+    },
+
+    listenToConnection({ commit, dispatch, state }, peerId: string) {
+      const connection = connections.find(
+        (c) => c.peerId === peerId
+      )?.connection;
+      if (!connection) return;
+
+      if (state.isHost)
+        connection.on('open', () => {
+          dispatch('sendPeersToClient', connection.peer);
+        });
+
       connection.on('data', (data) => {
-        commit('addMessage', data.message);
+        if (data.type === 'chatMessage') commit('addMessage', data);
+        else if (data.type === 'peers')
+          data.peers.forEach((p: string) => dispatch('connectToPeer', p));
       });
 
       connection.on('close', (data) => {
-        debugger;
+        connections = connections.filter(c => c.peerId !== connection.peer);
       });
 
       connection.on('error', (data) => {
@@ -88,7 +121,11 @@ export const store = createStore({
 
     sendMessage({ state, commit }, content: string) {
       commit('addMessage', { content, sender: state.username });
-      connection.send({ message: { content, sender: state.username } });
+      connections
+        .map((c) => c.connection)
+        .forEach((c) =>
+          c.send({ type: 'chatMessage', content, sender: state.username })
+        );
     },
   },
   modules: {},
