@@ -19,6 +19,7 @@ export const peerStore: Module<PeerState, GlobalState> = {
   getters: {
     peerId: (state) => state.peerId,
     hostId: (state) => state.hostId,
+    isHost: (state) => state.isHost,
   },
 
   mutations: {
