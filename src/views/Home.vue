@@ -1,6 +1,6 @@
 <template>
   <el-container class="full-height">
-    <el-header> Host Id: {{ peerId }} </el-header>
+    <el-header> Loby Id: {{ hostId }} </el-header>
 
     <el-main>
       <ul>
@@ -32,10 +32,14 @@ export default defineComponent({
     connection: '',
   }),
   computed: {
-    ...mapGetters(['username', 'messages', 'peerId']),
+    ...mapGetters({
+      username: 'username',
+      messages: 'messages',
+      hostId: 'peer/hostId',
+    }),
   },
   methods: {
-    ...mapActions(['sendMessage']),
+    ...mapActions({ sendMessage: 'peer/sendMessage' }),
     send(message: string): void {
       this.sendMessage(message);
     },
