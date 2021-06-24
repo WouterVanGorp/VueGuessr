@@ -1,4 +1,4 @@
 import SendMessageFooter from './SendMessageFooter.vue';
-import GameHeader from './GameHeader.vue';
+import LobyHeader from './LobyHeader.vue';
 
-export { SendMessageFooter, GameHeader };
+export { SendMessageFooter, LobyHeader };

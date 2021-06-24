@@ -1,6 +1,7 @@
 import Peer from 'peerjs';
 import { Module } from 'vuex';
-import { GlobalState, PeerState } from '../../models';
+import { DATA_TYPE, GlobalState, PeerState } from '../../models';
+import { DataMessage } from '../../models/DataMessage';
 
 let peer: Peer;
 let connections: { peerId: string; connection: Peer.DataConnection }[] = [];
@@ -68,28 +69,13 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    sendPeersToClient({ state }, peerId) {
-      const connection = getConnection(peerId);
-      if (!connection) return;
-
-      const peers = connections
-        .map((c) => c.peerId)
-        .filter((c) => c !== state.peerId && c !== connection.peer);
-
-      if (!peers.length) return;
-      connection.send({
-        type: 'peers',
-        peers,
-      });
-    },
-
     connectToPeer({ dispatch }, peerId: string) {
       const connection = peer.connect(peerId);
       connections.push({ peerId, connection });
       dispatch('listenToConnection', peerId);
     },
 
-    listenToConnection({ commit, dispatch, state }, peerId: string) {
+    listenToConnection({ dispatch, state }, peerId: string) {
       const connection = getConnection(peerId);
       if (!connection) return;
 
@@ -99,10 +85,7 @@ export const peerStore: Module<PeerState, GlobalState> = {
         });
 
       connection.on('data', (data) => {
-        if (data.type === 'chatMessage')
-          commit('addMessage', data, { root: true });
-        else if (data.type === 'peers')
-          data.peers.forEach((p: string) => dispatch('connectToPeer', p));
+        dispatch('processData', data);
       });
 
       connection.on('close', () => {
@@ -114,18 +97,46 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    sendMessage({ rootState, commit }, content: string) {
+    sendPeersToClient({ state }, peerId) {
+      const connection = getConnection(peerId);
+      if (!connection) return;
+
+      const peers = connections
+        .map((c) => c.peerId)
+        .filter((c) => c !== state.peerId && c !== connection.peer);
+
+      if (!peers.length) return;
+      connection.send({
+        type: DATA_TYPE.PEERS,
+        peers,
+      });
+    },
+
+    sendMessage({ rootState, commit, dispatch }, content: string) {
       commit(
         'addMessage',
         { content, sender: rootState.username },
         { root: true }
       );
 
-      connections
-        .map((c) => c.connection)
-        .forEach((c) =>
-          c.send({ type: 'chatMessage', content, sender: rootState.username })
-        );
+      dispatch('sendData', {
+        type: DATA_TYPE.CHAT,
+        content,
+        sender: rootState.username,
+      });
+    },
+
+    sendData({}, data: any) {
+      connections.map((c) => c.connection).forEach((c) => c.send(data));
+    },
+
+    processData({ dispatch, commit }, data: DataMessage) {
+      if (data.type === DATA_TYPE.CHAT)
+        commit('addMessage', data, { root: true });
+      else if (data.type === DATA_TYPE.PEERS)
+        data.peers.forEach((p: string) => dispatch('connectToPeer', p));
+      else if (data.type === DATA_TYPE.GAME)
+        dispatch('game/processData', data, { root: true });
     },
   },
 };

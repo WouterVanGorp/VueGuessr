@@ -1,4 +1,5 @@
-import Home from './Home.vue';
+import Loby from './Loby.vue';
 import Login from './Login.vue';
+import Game from './Game.vue';
 
-export { Home, Login };
+export { Loby, Login, Game };

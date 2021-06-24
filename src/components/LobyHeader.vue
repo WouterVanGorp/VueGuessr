@@ -9,7 +9,7 @@
       type="success"
       style="float: right"
       v-if="isHost"
-      @click="start()"
+      @click.stop="start()"
     >
       Start game
     </el-button>
@@ -20,7 +20,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'GameHeader',
+  name: 'LobyHeader',
   props: {
     isHost: Boolean,
     hostId: String,
@@ -38,7 +38,7 @@ export default defineComponent({
       textArea.remove();
     },
 
-    startGame() {
+    start() {
       this.$emit('startGame');
     },
   },
