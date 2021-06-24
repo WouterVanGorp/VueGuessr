@@ -1,18 +1,7 @@
 <template>
   <el-container class="full-height">
     <el-header>
-      <div style="margin-top: 1rem">
-        <b>Loby Id: </b><span id="span_hostId" style="cursor:pointer" @click="copy">{{ hostId }}</span>
-
-        <el-button
-          type="success"
-          style="float: right"
-          :v-if="isHost"
-          @click="start()"
-        >
-          Start game
-        </el-button>
-      </div>
+      <game-header :isHost="isHost" :hostId="hostId" />
     </el-header>
 
     <el-main>
@@ -33,12 +22,13 @@
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
-import { SendMessageFooter } from './../components';
+import { SendMessageFooter, GameHeader } from './../components';
 
 export default defineComponent({
   name: 'Home',
   components: {
     SendMessageFooter,
+    GameHeader,
   },
   data: () => ({
     connectionId: '',
@@ -66,7 +56,7 @@ export default defineComponent({
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('Copy');
-      this.$message({ message: 'Copied: ' + textArea.value, duration: 1000});
+      this.$message({ message: 'Copied: ' + textArea.value, duration: 1000 });
       textArea.remove();
     },
   },
