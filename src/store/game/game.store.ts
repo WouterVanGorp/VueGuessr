@@ -12,16 +12,18 @@ export const gameStore: Module<GameState, GlobalState> = {
     isActive: false,
   }),
 
-  getters: {},
+  getters: {
+    isGameActive: (state) => state.isActive,
+  },
 
   mutations: {
     setActive: (state) => (state.isActive = true),
   },
 
   actions: {
-    startGame({ rootState }) {
+    startGame({ commit }) {
       router.push({ name: 'game' });
-      
+      commit('setActive');
     },
 
     processData({ dispatch }, data: GameMessage) {

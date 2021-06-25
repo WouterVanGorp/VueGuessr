@@ -62,8 +62,9 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    listenForPeers({ dispatch }) {
+    listenForPeers({ dispatch, rootGetters }) {
       peer.on('connection', (connection) => {
+        if (rootGetters['game/isGameActive']) return;
         connections.push({ peerId: connection.peer, connection });
         dispatch('listenToConnection', connection.peer);
       });
