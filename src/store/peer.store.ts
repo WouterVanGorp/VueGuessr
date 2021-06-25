@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 import { Module } from 'vuex';
-import { DATA_TYPE, GlobalState, PeerState } from '../../models';
-import { DataMessage } from '../../models/DataMessage';
+import { DATA_TYPE, GlobalState, PeerState } from '../models';
+import { DataMessage } from '../models/DataMessage';
 
 let peer: Peer;
 let connections: { peerId: string; connection: Peer.DataConnection }[] = [];

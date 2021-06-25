@@ -1,15 +1,18 @@
 import { Module } from 'vuex';
-import { GameMessage, GAME_TYPE, GlobalState } from '../../models';
-import { router } from './../../router';
+import { GameMessage, GAME_TYPE, GlobalState } from '../models';
+import { router } from '../router';
 
 export interface GameState {
   isActive: boolean;
+  
+  players: {username: string, id: string }[],
 }
 
 export const gameStore: Module<GameState, GlobalState> = {
   namespaced: true,
   state: (): GameState => ({
     isActive: false,
+    players: []
   }),
 
   getters: {

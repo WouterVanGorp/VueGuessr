@@ -1,7 +1,7 @@
 <template>
   <el-container class="full-height">
     <el-header>
-      GAME
+      <GameHeader :editable="true" /> 
     </el-header>
 
     <el-main>
@@ -22,13 +22,13 @@
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
-import { SendMessageFooter, LobyHeader } from '../components';
+import { SendMessageFooter, GameHeader } from '../components';
 
 export default defineComponent({
   name: 'Loby',
   components: {
     SendMessageFooter,
-    LobyHeader,
+    GameHeader,
   },
   data: () => ({
     connectionId: '',
@@ -38,6 +38,7 @@ export default defineComponent({
     ...mapGetters({
       username: 'username',
       messages: 'messages'
+
     }),
   },
   methods: {

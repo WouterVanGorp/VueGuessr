@@ -1,8 +1,8 @@
 import { createLogger, createStore } from 'vuex';
 
-import { DATA_TYPE, GAME_TYPE, GlobalState } from '../models';
-import { gameStore } from './game/game.store';
-import { peerStore } from './peer/peer.store';
+import { DATA_TYPE, GAME_TYPE, GlobalState } from './../models';
+import { gameStore } from './game.store';
+import { peerStore } from './peer.store';
 
 export const store = createStore({
   state: (): GlobalState => ({
