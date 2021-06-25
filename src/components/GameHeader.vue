@@ -1,15 +1,11 @@
 <template>
   <el-input
     class="challenge_input"
-    @keyup.enter="send()"
     placeholder="Type your challenge here..."
-    v-model="placeholder"
+    v-model="value"
     :readonly="!editable"
     :autofocus="editable"
   >
-    <template v-if="editable" #append>
-      <el-button @click="send()">Send</el-button>
-    </template>
   </el-input>
 </template>
 
@@ -22,20 +18,15 @@ export default defineComponent({
     editable: Boolean,
     challenge: String,
   },
-  emits: ['sendChallenge'],
-  data: () => ({
-    placeholder: '',
-  }),
-  methods: {
-    send(): void {
-      if (!this.editable) return;
-      if (!this.placeholder || this.placeholder.length <= 5) return;
-      this.$emit('sendChallenge', this.placeholder);
-    },
-  },
-  watch: {
-    challenge(newVal: string) {
-      this.placeholder = newVal;
+  emits: ['update:challenge'],
+  computed: {
+    value: {
+      get(): string | undefined {
+        return this.challenge;
+      },
+      set(value: string) {
+        this.$emit('update:challenge', value);
+      },
     },
   },
 });

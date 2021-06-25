@@ -3,8 +3,7 @@
     <el-header>
       <GameHeader
         :editable="isChallenger && !challenge"
-        :challenge="challenge"
-        @sendChallenge="sendChallenge($event)"
+        v-model:challenge="newChallenge"
       />
     </el-header>
 
@@ -16,7 +15,17 @@
       </ul>
     </el-main>
 
-    <el-footer> </el-footer>
+    <el-footer>
+      <el-button
+        v-if="isChallenger && !challenge.length"
+        type="success"
+        style="width: 100%"
+        :disabled="!newChallenge.length"
+        @click="sendChallenge()"
+      >
+        Send challenge
+      </el-button>
+    </el-footer>
   </el-container>
 </template>
 
@@ -33,22 +42,24 @@ export default defineComponent({
     GameHeader,
   },
   data: () => ({
-    connectionId: '',
-    connection: '',
+    newChallenge: '',
   }),
   computed: {
     ...mapGetters({
-      username: 'username',
-      messages: 'messages',
       isChallenger: 'game/isChallenger',
       challenge: 'game/challenge',
     }),
   },
+  watch: {
+    challenge(newVal) {
+      this.newChallenge = newVal;
+    },
+  },
   methods: {
     ...mapActions({ setChallenge: 'game/setChallenge' }),
 
-    sendChallenge(newChallenge: string): void {
-      this.setChallenge(newChallenge);
+    sendChallenge(): void {
+      this.setChallenge(this.newChallenge);
     },
   },
 });
