@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { Loby, Login, Game } from './views';
+import { Lobby, Login, Game } from './views';
 import { store } from './store/app.store';
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: Login },
-  { path: '/loby', name: 'loby', component: Loby },
+  { path: '/lobby', name: 'lobby', component: Lobby },
   { path: '/game', name: 'game', component: Game },
   { path: '/', redirect: '/home' },
 ];

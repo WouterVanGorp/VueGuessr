@@ -1,7 +1,7 @@
 <template>
   <el-container class="full-height">
     <el-header>
-      <loby-header :isHost="isHost" :hostId="hostId" @startGame="start" />
+      <lobby-header :isHost="isHost" :hostId="hostId" @startGame="start" />
     </el-header>
 
     <el-main>
@@ -22,13 +22,13 @@
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
-import { SendMessageFooter, LobyHeader } from '../components';
+import { SendMessageFooter, LobbyHeader } from '../components';
 
 export default defineComponent({
-  name: 'Loby',
+  name: 'Lobby',
   components: {
     SendMessageFooter,
-    LobyHeader,
+    LobbyHeader,
   },
   data: () => ({
     connectionId: '',

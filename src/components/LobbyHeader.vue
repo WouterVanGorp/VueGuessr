@@ -1,6 +1,6 @@
 <template>
   <div style="margin-top: 1rem">
-    <b>Loby Id: </b>
+    <b>Lobby Id: </b>
     <span id="span_hostId" style="cursor: pointer" @click="copy">
       {{ hostId }}
     </span>
@@ -20,7 +20,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'LobyHeader',
+  name: 'LobbyHeader',
   props: {
     isHost: Boolean,
     hostId: String,

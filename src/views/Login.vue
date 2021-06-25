@@ -54,13 +54,13 @@ export default defineComponent({
         username: this.username,
         connectionId: this.connectionId,
       });
-      this.$router.push({ name: 'loby' });
+      this.$router.push({ name: 'lobby' });
     },
 
     host() {
       if (!this.usernameAllowed(this.username)) return;
       this.hostGame(this.username);
-      this.$router.push({ name: 'loby' });
+      this.$router.push({ name: 'lobby' });
     },
 
     usernameAllowed: (username: string): boolean => username.length > 3,
