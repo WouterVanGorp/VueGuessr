@@ -27,7 +27,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { SendMessageFooter, GameHeader } from '../components';
 
 export default defineComponent({
-  name: 'Loby',
+  name: 'Game',
   components: {
     SendMessageFooter,
     GameHeader,
