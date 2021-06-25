@@ -1,7 +1,11 @@
 <template>
   <el-container class="full-height">
     <el-header>
-      <GameHeader :editable="true" /> 
+      <GameHeader
+        :editable="isChallenger && !challenge"
+        :challenge="challenge"
+        @sendChallenge="sendChallenge($event)"
+      />
     </el-header>
 
     <el-main>
@@ -12,9 +16,7 @@
       </ul>
     </el-main>
 
-    <el-footer>
-      <send-message-footer @send="send" />
-    </el-footer>
+    <el-footer> </el-footer>
   </el-container>
 </template>
 
@@ -37,15 +39,16 @@ export default defineComponent({
   computed: {
     ...mapGetters({
       username: 'username',
-      messages: 'messages'
-
+      messages: 'messages',
+      isChallenger: 'game/isChallenger',
+      challenge: 'game/challenge',
     }),
   },
   methods: {
-    ...mapActions({ sendMessage: 'peer/sendMessage' }),
+    ...mapActions({ setChallenge: 'game/setChallenge' }),
 
-    send(message: string): void {
-      this.sendMessage(message);
+    sendChallenge(newChallenge: string): void {
+      this.setChallenge(newChallenge);
     },
   },
 });

@@ -127,7 +127,7 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    sendData({}, data: any) {
+    sendData({}, data: DataMessage) {
       connections.map((c) => c.connection).forEach((c) => c.send(data));
     },
 

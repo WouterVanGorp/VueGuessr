@@ -1,10 +1,13 @@
 <template>
- <el-input
+  <el-input
+    class="challenge_input"
     @keyup.enter="send()"
     placeholder="Type your challenge here..."
-    v-model="challenge"
+    v-model="placeholder"
+    :readonly="!editable"
+    :autofocus="editable"
   >
-    <template #append>
+    <template v-if="editable" #append>
       <el-button @click="send()">Send</el-button>
     </template>
   </el-input>
@@ -15,16 +18,31 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'GameHeader',
-  computed: {},
+  props: {
+    editable: Boolean,
+    challenge: String,
+  },
+  emits: ['sendChallenge'],
   data: () => ({
-    challenge: '',
+    placeholder: '',
   }),
-  emits: ['challenge'],
   methods: {
     send(): void {
-      if (this.challenge.length <= 5) return;
-      this.$emit('challenge', this.challenge);
+      if (!this.editable) return;
+      if (!this.placeholder || this.placeholder.length <= 5) return;
+      this.$emit('sendChallenge', this.placeholder);
+    },
+  },
+  watch: {
+    challenge(newVal: string) {
+      this.placeholder = newVal;
     },
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.challenge_input {
+  margin-top: 1rem;
+}
+</style>
