@@ -8,11 +8,15 @@
     </el-header>
 
     <el-main>
-      <ul>
-        <li v-for="message in messages" :key="message.content">
-          {{ message.sender + ': ' + message.content }}
-        </li>
-      </ul>
+      <GameContainer>
+        <template v-slot:map>
+          <GameMap />
+        </template>
+        <template v-slot:players>
+          <h1>hier kome de spelers</h1>
+        </template>
+        <template v-slot:chat> hier komt de chat </template>
+      </GameContainer>
     </el-main>
 
     <el-footer>
@@ -33,13 +37,20 @@
 import { defineComponent } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
-import { SendMessageFooter, GameHeader } from '../components';
+import {
+  SendMessageFooter,
+  GameHeader,
+  GameMap,
+  GameContainer,
+} from '../components';
 
 export default defineComponent({
   name: 'Game',
   components: {
     SendMessageFooter,
     GameHeader,
+    GameMap,
+    GameContainer,
   },
   data: () => ({
     newChallenge: '',
