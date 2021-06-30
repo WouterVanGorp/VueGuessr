@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: Login },
   { path: '/lobby', name: 'lobby', component: Lobby },
   { path: '/game', name: 'game', component: Game },
-  { path: '/', redirect: '/home' },
+  { path: '/', redirect: '/login' },
 ];
 
 export const router = createRouter({
@@ -15,6 +15,7 @@ export const router = createRouter({
   routes,
 });
 
+// route guard, always go to login if no username present in store
 router.beforeEach((to, _, next) => {
   const username = store.getters.username;
   if (to.name !== 'login' && !username) next({ name: 'login' });

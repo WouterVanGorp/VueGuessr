@@ -8,7 +8,7 @@
     <el-card shadow="always">
       <div>
         <el-input
-          @keyup.enter="login()"
+          @keyup.enter="host()"
           placeholder="Enter username"
           class="mb-s"
           v-model="username"
@@ -42,7 +42,7 @@ import { mapActions } from 'vuex';
 export default defineComponent({
   name: 'Login',
   data: () => ({
-    username: 'test',
+    username: '',
     connectionId: '',
   }),
   methods: {
