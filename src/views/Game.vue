@@ -10,10 +10,15 @@
     <el-main>
       <GameContainer>
         <template v-slot:map>
-          <GameMap />
+          <GameMap :pickCoordinate="mustPickCoordinate" />
         </template>
         <template v-slot:players>
-          <h1>hier kome de spelers</h1>
+          <h3>Players</h3>
+          <ul>
+            <li v-for="player in [username, ...players]" :key="player">
+              {{ player }}
+            </li>
+          </ul>
         </template>
         <template v-slot:chat> hier komt de chat </template>
       </GameContainer>
@@ -54,12 +59,22 @@ export default defineComponent({
   },
   data: () => ({
     newChallenge: '',
+    coordinates: [],
   }),
   computed: {
     ...mapGetters({
       isChallenger: 'game/isChallenger',
       challenge: 'game/challenge',
+      players: 'peer/getUsernames',
+      username: 'username',
     }),
+    
+    mustPickCoordinate(): boolean {
+      return (
+        (this.isChallenger && !this.challenge.length) ||
+        (!this.isChallenger && this.challenge.length)
+      );
+    },
   },
   watch: {
     challenge(newVal) {

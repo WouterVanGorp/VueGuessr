@@ -14,7 +14,6 @@ export const gameStore: Module<GameState, GlobalState> = {
   state: (): GameState => ({
     isActive: false,
     players: [],
-    // round data
     isChallenger: false,
     challenge: '',
   }),

@@ -1,12 +1,9 @@
 import Peer from 'peerjs';
 import { Module } from 'vuex';
-import { DATA_TYPE, GlobalState, PeerState } from '../models';
+import { DATA_TYPE, GlobalState, PeerState, ConnectionInfo } from '../models';
 import { DataMessage } from '../models/DataMessage';
 
 let peer: Peer;
-let connections: { peerId: string; connection: Peer.DataConnection }[] = [];
-let getConnection = (peerId: string) =>
-  connections.find((c) => c.peerId === peerId)?.connection;
 
 export const peerStore: Module<PeerState, GlobalState> = {
   namespaced: true,
@@ -14,19 +11,35 @@ export const peerStore: Module<PeerState, GlobalState> = {
     isHost: false,
     peerId: '',
     hostId: '',
-    peerIds: [],
+    connectionsInfo: [],
   }),
 
   getters: {
     peerId: (state) => state.peerId,
     hostId: (state) => state.hostId,
     isHost: (state) => state.isHost,
+    getUsernames: (state) => state.connectionsInfo.map((c) => c.username),
   },
 
   mutations: {
     setHost: (state) => (state.isHost = true),
     setPeerId: (state, peerId: string) => (state.peerId = peerId),
     setHostId: (state, hostId: string) => (state.hostId = hostId),
+
+    setHostName: (state, hostName: string) => {
+      const hostConn = state.connectionsInfo.find(
+        (c) => c.peerId === state.hostId
+      );
+      if (!hostConn) return;
+      hostConn.username = hostName;
+    },
+
+    addConnection: (state, conInfo: ConnectionInfo) =>
+      state.connectionsInfo.push(conInfo),
+    removeConnection: (state, peerId: string) =>
+      (state.connectionsInfo = state.connectionsInfo.filter(
+        (c) => c.peerId !== peerId
+      )),
   },
 
   actions: {
@@ -51,10 +64,10 @@ export const peerStore: Module<PeerState, GlobalState> = {
         else dispatch('connectToPeer', connectionId);
       });
 
-      peer.on('close', (data) => {
+      peer.on('close', () => {
         debugger;
       });
-      peer.on('disconnected', (data) => {
+      peer.on('disconnected', () => {
         debugger;
       });
       peer.on('error', (data) => {
@@ -62,22 +75,30 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    listenForPeers({ dispatch, rootGetters }) {
+    listenForPeers({ dispatch, commit, rootGetters }) {
       peer.on('connection', (connection) => {
         if (rootGetters['game/isGameActive']) return;
-        connections.push({ peerId: connection.peer, connection });
+        commit('addConnection', {
+          peerId: connection.peer,
+          connection,
+          username: connection.metadata.username,
+        });
         dispatch('listenToConnection', connection.peer);
       });
     },
 
-    connectToPeer({ dispatch }, peerId: string) {
-      const connection = peer.connect(peerId);
-      connections.push({ peerId, connection });
+    connectToPeer({ dispatch, commit, rootState }, peerId: string) {
+      const connection = peer.connect(peerId, {
+        metadata: { username: rootState.username },
+      });
+      commit('addConnection', { peerId: connection.peer, connection });
       dispatch('listenToConnection', peerId);
     },
 
-    listenToConnection({ dispatch, state }, peerId: string) {
-      const connection = getConnection(peerId);
+    listenToConnection({ dispatch, commit, state }, peerId: string) {
+      const connection = state.connectionsInfo.find(
+        (c) => c.peerId === peerId
+      )?.connection;
       if (!connection) return;
 
       if (state.isHost)
@@ -90,7 +111,7 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
 
       connection.on('close', () => {
-        connections = connections.filter((c) => c.peerId !== connection.peer);
+        commit('RemoveConnection', connection.peer);
       });
 
       connection.on('error', (data) => {
@@ -98,18 +119,20 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    sendPeersToClient({ state }, peerId) {
-      const connection = getConnection(peerId);
+    sendPeersToClient({ state, rootState }, peerId) {
+      const connection = state.connectionsInfo.find(
+        (c) => c.peerId === peerId
+      )?.connection;
       if (!connection) return;
 
-      const peers = connections
+      const peers = state.connectionsInfo
         .map((c) => c.peerId)
         .filter((c) => c !== state.peerId && c !== connection.peer);
 
-      if (!peers.length) return;
       connection.send({
         type: DATA_TYPE.PEERS,
         peers,
+        hostName: rootState.username, // ALleen maar de host triggert deze functie
       });
     },
 
@@ -127,16 +150,18 @@ export const peerStore: Module<PeerState, GlobalState> = {
       });
     },
 
-    sendData({}, data: DataMessage) {
+    sendData({ state }, data: DataMessage) {
+      const connections = state.connectionsInfo;
       connections.map((c) => c.connection).forEach((c) => c.send(data));
     },
 
     processData({ dispatch, commit }, data: DataMessage) {
       if (data.type === DATA_TYPE.CHAT)
         commit('addMessage', data, { root: true });
-      else if (data.type === DATA_TYPE.PEERS)
+      else if (data.type === DATA_TYPE.PEERS) {
         data.peers.forEach((p: string) => dispatch('connectToPeer', p));
-      else if (data.type === DATA_TYPE.GAME)
+        commit('setHostName', data.hostName);
+      } else if (data.type === DATA_TYPE.GAME)
         dispatch('game/processData', data, { root: true });
     },
   },
