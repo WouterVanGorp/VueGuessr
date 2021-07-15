@@ -40,6 +40,7 @@ export default defineComponent({
     const vl = new VectorLayer({
       source: new VectorSource({ features: [] }),
     });
+  
     vl.set(MAP_TYPES.Layer, LAYER_TYPES.Coordinate);
 
     this.olMap = new Map({

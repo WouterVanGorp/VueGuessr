@@ -68,11 +68,11 @@ export default defineComponent({
       players: 'peer/getUsernames',
       username: 'username',
     }),
-    
+
     mustPickCoordinate(): boolean {
       return (
         (this.isChallenger && !this.challenge.length) ||
-        (!this.isChallenger && this.challenge.length)
+        (!this.isChallenger && !!this.challenge.length)
       );
     },
   },
