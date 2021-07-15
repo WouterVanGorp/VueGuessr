@@ -30,10 +30,6 @@ export default defineComponent({
     SendMessageFooter,
     LobbyHeader,
   },
-  data: () => ({
-    connectionId: '',
-    connection: '',
-  }),
   computed: {
     ...mapGetters({
       username: 'username',
